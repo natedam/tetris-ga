@@ -53,15 +53,44 @@ Results go to results/. Finished runs are skipped, so it can be restarted.
 
 My notes:
 
+## experiments/analysis.py — shared analysis helpers
+Loads the saved results (run histories, champions, test games). Also:
+`effective_weights()` (removes the redundant holes weight, see below),
+A12 effect size, Holm correction, confidence intervals, `style_profile()`
+(how high / how many holes a player keeps the board) and `style_players()`
+(Hand-tuned, GA greedy, GA top-1, GA top-2 — chosen by fixed rules, never by test score).
+
+My notes:
+
+## experiments/stats.py — statistical tests → results/tables/
+Wilcoxon / Mann-Whitney / Kruskal-Wallis tests with Holm correction and A12
+effect sizes for every research question; one Markdown table file per RQ.
+
+My notes:
+
+## experiments/plots.py — figures → results/figures/
+Nine figures (fig1–fig9), one per finding: boxes + dots for test games,
+mean ± 95% CI curves for GA runs, weights and playing styles.
+
+My notes:
+
+## experiments/animate.py — animations → results/animations/
+Three GIFs on the first test game: the 4 style players on 10×20, a survival
+race on 10×10, and one GA run "growing up" (best player after generation 0, 2, 5, 49).
+
+My notes:
+
 ## visualize.py — animations
-Players play the same pieces side by side → GIF, with each player's weights
-shown as a bar chart under its board.
+Players play the same pieces side by side → GIF. Under each board: lines,
+pieces, stack height, holes, a small "holes over time" chart and the
+player's weights as a bar chart.
 
 My notes:
 
 ## tests/ — unit tests
 `python -m pytest` checks the engine (drops, line clears, game over), the
-features (compared with a slow direct count), and the GA (reproducible, improves).
+features (compared with a slow direct count), the GA (reproducible, improves),
+and the analysis (holes weight really is redundant, A12, Holm, board counters).
 
 My notes:
 

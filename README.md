@@ -19,8 +19,10 @@ well on the standard board.
 ```
 tetris/       engine.py (game), features.py, agent.py (linear player), baselines.py
 ga/           operators.py (selection/crossover/mutation), evolution.py (the GA)
-experiments/  configs/*.yaml (one file per experiment), run.py (runner)
-results/      CSV results, champion weights, figures, animations
+experiments/  configs/*.yaml (one file per experiment), run.py (runner),
+              stats.py (tables + tests), plots.py (figures), animate.py (GIFs),
+              analysis.py (shared helpers)
+results/      CSV results, champion weights, tables/, figures/, animations/
 visualize.py  side-by-side GIF animations of players
 tests/        unit tests (python -m pytest)
 ```
@@ -38,5 +40,9 @@ python -m pytest                                              # unit tests
 python experiments/run.py all --quick                         # 1-minute smoke test of everything
 python experiments/run.py experiments/configs/e2_population.yaml   # one experiment
 python experiments/run.py all                                 # all experiments (hours)
+
+python experiments/stats.py      # statistical tests -> results/tables/*.md
+python experiments/plots.py      # figures           -> results/figures/*.png
+python experiments/animate.py    # animations        -> results/animations/*.gif
 python visualize.py random hand literature --out results/demo.gif
 ```
