@@ -1,0 +1,8 @@
+# E2 (RQ2): how does population size affect final fitness and convergence speed?
+name: E2_population
+type: ga
+repeats: 10               # independent runs (seeds 0..9) per variant
+variants:
+  pop20:  {population_size: 20}
+  pop50:  {population_size: 50}     # = default
+  pop100: {population_size: 100}

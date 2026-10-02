@@ -1,0 +1,9 @@
+# E4 (RQ3, optional): selection method x crossover method.
+name: E4_operators
+type: ga
+repeats: 10
+variants:
+  tournament+arithmetic: {selection: tournament, crossover: arithmetic}   # = default
+  tournament+uniform:    {selection: tournament, crossover: uniform}
+  roulette+arithmetic:   {selection: roulette,   crossover: arithmetic}
+  roulette+uniform:      {selection: roulette,   crossover: uniform}

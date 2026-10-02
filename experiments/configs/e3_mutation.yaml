@@ -1,0 +1,8 @@
+# E3 (RQ2): how does the mutation rate affect final fitness and convergence speed?
+name: E3_mutation
+type: ga
+repeats: 10
+variants:
+  mut0.01: {mutation_rate: 0.01}
+  mut0.05: {mutation_rate: 0.05}    # = default
+  mut0.15: {mutation_rate: 0.15}

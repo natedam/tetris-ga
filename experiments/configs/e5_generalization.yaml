@@ -1,0 +1,15 @@
+# E5 (RQ4): do weights evolved on the small 10x10 board work on the standard
+# 10x20 board? Same players as E1, new board. Very good players can survive
+# for a very long time on 10x20, so there is a large safety cap; games that
+# reach it are reported as "reached cap" in the results.
+name: E5_generalization
+type: evaluate
+test_games: 20
+board_width: 10
+board_height: 20
+max_pieces: 250000
+players:
+  - random
+  - hand
+  - literature
+  - ga:default

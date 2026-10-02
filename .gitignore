@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# Smoke-test output (python experiments/run.py ... --quick)
+results/runs/quick_*/
+results/quick_*
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

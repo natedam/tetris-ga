@@ -1,0 +1,16 @@
+# Default GA settings. Every experiment starts from these values and changes
+# only what it is testing. (Field meanings: see GAConfig in ga/evolution.py.)
+population_size: 50
+generations: 50
+games_per_eval: 3         # training games per individual per generation
+max_pieces: 1000          # piece cap per training game
+board_width: 10
+board_height: 10          # train on a small board, where even good players lose (see README)
+selection: tournament
+tournament_size: 3
+crossover: arithmetic
+mutation_rate: 0.05       # probability that each weight is mutated
+mutation_sigma: 0.2
+elitism: 2
+validation_games: 10
+validation_top_k: 3

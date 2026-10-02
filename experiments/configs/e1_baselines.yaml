@@ -1,0 +1,15 @@
+# E1 (RQ1): evolved players vs baselines, on held-out test games of the
+# training board. Run E2 first: the GA players are the champions of the
+# default-config runs (results/runs/default/).
+name: E1_baselines
+type: evaluate
+test_games: 20
+board_width: 10
+board_height: 10
+max_pieces: null          # no cap: play until game over
+players:
+  - random
+  - hand
+  - literature
+  - ga:default            # the best champion (highest validation score) of the 10 runs
+  - ga-all:default        # every run's champion, to show run-to-run spread
