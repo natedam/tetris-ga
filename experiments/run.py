@@ -5,7 +5,7 @@ Usage (from the repository root):
     python experiments/run.py experiments/configs/e2_population.yaml
     python experiments/run.py experiments/configs/e2_population.yaml --workers 8
     python experiments/run.py experiments/configs/e2_population.yaml --quick   # smoke test
-    python experiments/run.py all                                              # E2,E3,E4,E1,E5
+    python experiments/run.py all          # E2, E3, E4, champions test, E1, E5
 
 Two kinds of experiment files (see experiments/configs/):
 
@@ -21,7 +21,11 @@ Two kinds of experiment files (see experiments/configs/):
                   simply be started again and it continues where it stopped.
 
   type: evaluate  Play held-out test games with fixed players and save one row
-                  per game in results/<experiment name>.csv.
+                  per game in results/<experiment name>.csv. Player specs:
+                      random | hand | literature
+                      ga:<group>      best champion (by validation) of one group
+                      ga-all:<group>  every champion of one group
+                      ga-top:<N>      the N best champions (by validation) of all groups
 """
 
 import argparse
@@ -46,8 +50,8 @@ from tetris.baselines import HAND_TUNED_WEIGHTS, LITERATURE_WEIGHTS, RandomAgent
 CONFIG_DIR = ROOT / "experiments" / "configs"
 RESULTS_DIR = ROOT / "results"
 RUNS_DIR = RESULTS_DIR / "runs"
-ALL_EXPERIMENTS = ["e2_population", "e3_mutation", "e4_operators", "e1_baselines",
-                   "e5_generalization"]
+ALL_EXPERIMENTS = ["e2_population", "e3_mutation", "e4_operators", "e2e4_champions",
+                   "e1_baselines", "e5_generalization"]
 
 
 def load_yaml(path):
@@ -124,7 +128,25 @@ def players_from_spec(spec, group_prefix=""):
     if spec.startswith("ga-all:"):             # every champion of a group
         group = group_prefix + spec[7:]
         return [(c["name"], c["weights"]) for c in load_champions(group)]
+    if spec.startswith("ga-top:"):             # the N best champions of ALL groups
+        n = int(spec[7:])
+        ranked = sorted(all_champions(group_prefix), key=lambda c: c["validation"], reverse=True)
+        return [(f"GA top-{i + 1}: {c['name']}", c["weights"]) for i, c in enumerate(ranked[:n])]
     raise ValueError(f"Unknown player spec: {spec}")
+
+
+def all_champions(group_prefix=""):
+    """Champions of every GA run in results/runs/. Normal mode skips the quick_
+    smoke-test groups; --quick mode uses ONLY the quick_ groups.
+    Champions are ranked by their VALIDATION score (never by test games),
+    so choosing the best players does not peek at the test set."""
+    champions = []
+    for group_dir in sorted(RUNS_DIR.iterdir()):
+        is_quick = group_dir.name.startswith("quick_")
+        has_champions = any(group_dir.glob("seed_*_champion.json"))
+        if has_champions and is_quick == (group_prefix == "quick_"):
+            champions += load_champions(group_dir.name)
+    return champions
 
 
 def _play_one(job):

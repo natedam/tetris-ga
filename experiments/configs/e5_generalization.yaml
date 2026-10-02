@@ -1,7 +1,8 @@
 # E5 (RQ4): do weights evolved on the small 10x10 board work on the standard
-# 10x20 board? Same players as E1, new board. Very good players can survive
-# for a very long time on 10x20, so there is a large safety cap; games that
-# reach it are reported as "reached cap" in the results.
+# 10x20 board? Same kind of players as E1, new board. Very good players can
+# survive for a very long time on 10x20, so there is a large safety cap; games
+# that reach it are reported as "reached cap" in the results.
+# Run E1-E4 first.
 name: E5_generalization
 type: evaluate
 test_games: 20
@@ -12,4 +13,6 @@ players:
   - random
   - hand
   - literature
-  - ga:default
+  - ga:default            # best default-config champion (same "GA best" as in E1)
+  - ga-top:3              # the 3 best champions of ALL 80 runs, ranked by validation
+  - ga-all:default        # all 10 default-config champions, to show run-to-run spread
