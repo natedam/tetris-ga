@@ -22,6 +22,8 @@ import pandas as pd
 from scipy.stats import kruskal, mannwhitneyu, spearmanr, wilcoxon
 
 import analysis as A
+from tetris.agent import LinearAgent, play_game   # analysis puts the repository root on sys.path
+from tetris.baselines import HAND_TUNED_WEIGHTS
 
 
 def summary(lines):
@@ -193,18 +195,22 @@ def variants_tables(champions):
             kw[name] = kruskal(*[v[col] for v in per_variant.values()]).pvalue
         kw_line = "Kruskal-Wallis across variants: " + ", ".join(f"{k} p = {A.fmt_p(p)}" for k, p in kw.items())
 
-        # every variant vs the default (paired by seed: same initial population and games)
+        # every variant vs the default, plus (E2, E3) the two extremes against each other;
+        # runs with the same seed are paired (same initial population and games)
         default_label = [lab for g, lab in variants if g == "default"][0]
-        base = per_variant[default_label]
+        labels = [lab for _, lab in variants]
+        pairs = [(lab, default_label) for lab in labels if lab != default_label]
+        if len(labels) == 3:
+            pairs.append((labels[2], labels[0]))
         comp, pvals = [], []
-        for label, v in per_variant.items():
-            if label == default_label:
-                continue
+        for label, other in pairs:
+            v, base = per_variant[label], per_variant[other]
             p_mwu = mannwhitneyu(v.test_mean, base.test_mean).pvalue
             p_wil = wilcoxon(v.test_mean, base.test_mean).pvalue if np.any(v.test_mean != base.test_mean) else 1.0
             pvals.append(p_mwu)
-            comp.append({"comparison": f"{label} vs {default_label}", "test-score A12": f"{A.a12(v.test_mean, base.test_mean):.2f}",
+            comp.append({"comparison": f"{label} vs {other}", "test-score A12": f"{A.a12(v.test_mean, base.test_mean):.2f}",
                          "Mann-Whitney p": p_mwu, "paired Wilcoxon p": A.fmt_p(p_wil),
+                         "validation p": A.fmt_p(mannwhitneyu(v.validation, base.validation).pvalue),
                          "diversity A12": f"{A.a12(v.late_diversity, base.late_diversity):.2f}",
                          "diversity p": A.fmt_p(mannwhitneyu(v.late_diversity, base.late_diversity).pvalue)})
         for row, p in zip(comp, A.holm(pvals)):
@@ -225,7 +231,9 @@ def variants_tables(champions):
 
     parts.append("Test score = each run's champion on the 20 test games (10x10), averaged per run; "
                  "10 runs per variant. Runs with the same seed share their initial population and "
-                 "training games, so the Wilcoxon test pairs them.")
+                 "training games, so the Wilcoxon test pairs them. Mann-Whitney p-values on the test "
+                 "score are Holm-corrected within each experiment; validation p and diversity p are "
+                 "uncorrected Mann-Whitney tests.")
     write("rq2_rq3_variants.md", "RQ2 + RQ3 - GA settings (E2 population size, E3 mutation rate, E4 operators)", parts)
 
 
@@ -269,12 +277,38 @@ def weights_and_styles(champions):
     ])
 
 
+# ------------------------------------------------- design checks (Methods)
+def design_checks(champions):
+    """Numbers quoted in the Methods section: why the training board is 10x10,
+    and how well the validation score predicts the test score."""
+    hand = LinearAgent(HAND_TUNED_WEIGHTS)
+    capped = [play_game(hand, seed=s, max_pieces=500, width=10, height=20).lines for s in A.TEST_SEEDS]
+    cap_text = (f"Hand-tuned player on the 10x20 board with a 500-piece cap (20 test games): "
+                f"{min(capped)}-{max(capped)} lines per game, mean {np.mean(capped):.1f}. "
+                f"500 pieces = 2,000 cells, so at most 200 lines are possible -> the score saturates.")
+
+    rows = []
+    for name, c in [("all 80 runs", champions), ("default setting (10 runs)", champions[champions.group == "default"])]:
+        r = spearmanr(c.validation, c.test_mean)
+        rows.append({"runs": name, "Spearman rho (validation vs test)": f"{r.statistic:.2f}",
+                     "p": A.fmt_p(r.pvalue), "mean validation": f"{c.validation.mean():.1f}",
+                     "mean test": f"{c.test_mean.mean():.1f}",
+                     "validation > test": f"{(c.validation > c.test_mean).mean():.0%}"})
+    gen0 = champions[champions.generation == 0]
+    gen0_text = (f"Champions found already in generation 0 (a random initial individual): "
+                 f"{len(gen0)} of 80 runs ({', '.join(f'{g} seed {s}' for g, s in zip(gen0.group, gen0.seed))}).")
+    write("design_checks.md", "Design checks (Methods)",
+          [cap_text, "Validation score (10 fixed games) vs final test score (20 test games) of each run's champion, 10x10:",
+           md_table(pd.DataFrame(rows)), gen0_text])
+
+
 def main():
     e1, e5 = rq1_tables()
     rq4_table(e1, e5)
     champions = A.champion_table()
     variants_tables(champions)
     weights_and_styles(champions)
+    design_checks(champions)
     print(f"Tables written to {A.TABLES}")
 
 

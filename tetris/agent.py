@@ -27,7 +27,12 @@ class LinearAgent:
             return None
         heights, cells, lines = outcome
         features = compute_features(heights, cells, lines, game.height)
-        return sum(w * f for w, f in zip(self.weights, features))
+        # Add the terms one by one, left to right. (Python 3.12 changed the built-in
+        # sum() to round differently, which changes how exact ties are broken.)
+        score = 0.0
+        for w, f in zip(self.weights, features):
+            score += w * f
+        return score
 
     def choose_move(self, game):
         best_move, best_score = None, float("-inf")

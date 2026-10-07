@@ -64,7 +64,8 @@ My notes:
 
 ## experiments/stats.py — statistical tests → results/tables/
 Wilcoxon / Mann-Whitney / Kruskal-Wallis tests with Holm correction and A12
-effect sizes for every research question; one Markdown table file per RQ.
+effect sizes for every research question; one Markdown table file per RQ, plus
+design_checks.md (numbers quoted in the README's Methods section).
 
 My notes:
 
