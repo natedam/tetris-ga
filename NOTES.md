@@ -97,7 +97,7 @@ My notes:
 
 ## Things I found out along the way
 - A 500-piece cap on the 10×20 board was useless as a fitness: even my
-  hand-tuned player cleared 195–199 of the ~200 possible lines, so the GA had
+  hand-tuned player cleared 175–198 (mean 194) of the ~200 possible lines, so the GA had
   nothing to improve. → Train on 10×10 (players do lose there), test on 10×20 (RQ4).
 - "holes" carries no extra information when "aggregate height" and "lines
   cleared" are also features: holes = height − cells, and cells after a move =

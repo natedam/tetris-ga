@@ -518,8 +518,7 @@ pip install -r requirements.txt
 
 python -m pytest                                              # unit tests
 python experiments/run.py all --quick                         # 1-minute smoke test of everything
-python experiments/run.py experiments/configs/e2_population.yaml   # one experiment
-python experiments/run.py all                                 # all experiments (several hours)
+python experiments/run.py all                                 # re-plays all 2,220 test games (~5 min)
 
 python experiments/stats.py      # statistical tests -> results/tables/*.md
 python experiments/plots.py      # figures           -> results/figures/*.png
@@ -531,3 +530,9 @@ Each YAML file describes one experiment (E1–E5). `type: ga` runs the GA 10 tim
 the test games with fixed players. Finished runs are skipped, so an interrupted experiment can simply be restarted.
 All results of this report are already in `results/`, so `stats.py`, `plots.py` and `animate.py` can be run without
 re-running the GA.
+
+The 80 GA runs are already saved in `results/runs/`, so `run.py` skips them ("already done, skipping"). To re-run one
+GA run from scratch, delete its two files, for example `results/runs/population_size=20/seed_0.csv` and
+`seed_0_champion.json`, and run `python experiments/run.py experiments/configs/e2_population.yaml` (about 2 minutes);
+the new file is identical to the saved one except the timing column. Deleting the whole `results/runs/` folder re-runs
+all 80 GA runs (about 6 hours on 2 cores).
